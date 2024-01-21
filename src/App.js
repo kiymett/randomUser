@@ -10,83 +10,110 @@ import padlockSvg from "./assets/padlock.svg";
 import cwSvg from "./assets/cw.svg";
 import Footer from "./components/footer/Footer";
 import axios from "axios";
-import {useState} from 'react'
+import { useState } from 'react'
 
 
 function App() {
   const url = "https://randomuser.me/api/";
   const defaultImage = "https://randomuser.me/api/portraits/men/75.jpg";
   const [user, setUser] = useState({
-    name:"",
-    email:"",
-    age:"",
-    picture:"",
-    phone:"",
-    location:"",
-    password:""
+    name: "",
+    email: "",
+    picture: "",
+    dob: "",
+    phone: "",
+    location: "",
+    password: ""
   })
 
   const [content, setContent] = useState("")
   const [paragraph, setParagraph] = useState("")
-  const [nameTable, setNameTable] = useState("")
-  const [emailTable, setEmailTable] = useState("")
-  const [ageTable, setAgeTable] = useState("")
-  const [phoneTable, setPhoneTable] = useState("")
+  const [allUser, setAllUser] = useState([])
+
+  const addUser = () => {
+    setAllUser([...allUser, { first: user.name.first, email, phone: user.phone, age: user.dob.age }])
+    console.log(allUser)
+  }
+
+
 
   const getUser = () => {
     axios(url)
-    .then((res) =>(setUser(res.data.results[0])))
-    .catch((error)=>console.log(error))
+      .then((res) => {
+        setUser(res.data.results[0]);
+        setContent('name');
+        setParagraph(`${res.data.results[0].name.first} ${res.data.results[0].name.last}`)
+      })
+      .catch((error) => console.log(error))
     console.log("click ")
   }
+
   console.log(user)
 
+
+  // const getUser = () => {
+  //   axios(url)
+  //   .then((res) =>(setUser(res.data.results[0]))).then(()=>getName())
+  //   .catch((error)=>console.log(error))
+  //   console.log("click ")
+  // }
+  // console.log(user)
   //? componentDidMount (wenn die Seite geladen wird, dann sollte ein User direkt kommen)
- const {name, email, picture, phone, age, location, password } = user
- useEffect(() => {
- getUser()
- getName()
-}, [])
 
-const addUser = () => {
-  setNameTable(`${name.first}`) 
-  setEmailTable(`${email}`) 
-  setPhoneTable(`${phone}`)
-  setAgeTable(`${user.dob.age}`)
+  const {
+    name: { first, last },
+    email,
+    picture: { large },
+    dob: { age },
+    location: { city, state },
+    phone,
+  } = user
 
-}
+  useEffect(() => {
+    getUser()
+
+  }, [])
+
+  // const addUser = () => {
+  //   setNameTable(`${name.first}`) 
+  //   setEmailTable(`${email}`) 
+  //   setPhoneTable(`${phone}`)
+  //   setAgeTable(`${user.dob.age}`)  
+  // }
+
 
 
   const getName = () => {
-    setContent('name'); 
-    setParagraph(`${name.first} ${name.last}`)   
+    setContent('name');
+    setParagraph(`${first} ${last}`)
   }
 
   const getEmail = () => {
-    setContent('email'); 
-    setParagraph(`${email}`)  
+    setContent('email');
+    setParagraph(`${email}`)
   }
 
   const getAge = () => {
-    setContent('age'); 
-    setParagraph(`${user.dob.age}`)  
+    setContent('age');
+    setParagraph(`${user.dob.age}`)
   }
 
   const getPhone = () => {
-    setContent('phone');   
-    setParagraph(`${user.phone}`)  
+    setContent('phone');
+    setParagraph(`${user.phone}`)
   }
 
   const getStreet = () => {
-    setContent('street');   
-    setParagraph(`${location.state}`)  
+    setContent('street');
+    setParagraph(`${state}`)
   }
 
   const getPassword = () => {
-    setContent('password');  
-    setParagraph(`${user.login.password}`)   
+    setContent('password');
+    setParagraph(`${user.login.password}`)
   }
-  
+
+
   return (
     <main>
       <div className="block bcg-orange">
@@ -94,7 +121,7 @@ const addUser = () => {
       </div>
       <div className="block">
         <div className="container">
-          <img src={picture.large} alt="random user" className="user-img" />
+          <img src={large} alt="random user" className="user-img" />
           <p className="user-title">My {content} is</p>
           <p className="user-value">{paragraph}</p>
           <div className="values-list">
@@ -108,12 +135,12 @@ const addUser = () => {
               <img src={womanAgeSvg} alt="age" id="iconImg" />
             </button>
             <button className="icon" data-label="street" onMouseEnter={getStreet}>
-              <img src={mapSvg} alt="map" id="iconImg"/>
+              <img src={mapSvg} alt="map" id="iconImg" />
             </button>
-            <button className="icon" data-label="phone"  onMouseEnter={getPhone}>
+            <button className="icon" data-label="phone" onMouseEnter={getPhone}>
               <img src={phoneSvg} alt="phone" id="iconImg" />
             </button>
-            <button className="icon" data-label="password"  onMouseEnter={getPassword}>
+            <button className="icon" data-label="password" onMouseEnter={getPassword}>
               <img src={padlockSvg} alt="lock" id="iconImg" />
             </button>
           </div>
@@ -121,11 +148,10 @@ const addUser = () => {
             <button className="btn" type="button" onClick={getUser}>
               new user
             </button>
-            <button className="btn" type="button" onClick={addUser}>
+            <button className="btn" type="button" onClick={addUser} >
               add user
             </button>
           </div>
-
           <table className="table">
             <thead>
               <tr className="head-tr">
@@ -135,15 +161,21 @@ const addUser = () => {
                 <th className="th">Age</th>
               </tr>
             </thead>
+
             <tbody>
-              <tr className="body-tr">
-                <td>{nameTable}</td>
-                <td>{emailTable}</td>
-                <td>{phoneTable}</td>
-                <td>{ageTable}</td>
-              </tr>          
+              {allUser.map((item, i) => (
+                <tr key={i} className="body-tr">
+                  <td>{item.first}</td>
+                  <td>{item.email}</td>
+                  <td>{item.phone}</td>
+                  <td>{item.age}</td>
+                </tr>
+              ))}
+
             </tbody>
           </table>
+
+
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "center" }}>
